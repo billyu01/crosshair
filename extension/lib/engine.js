@@ -219,7 +219,7 @@ export class RunEngine {
   }
 
   async _pickFallbackTab() {
-    // 1) 本轮新建、还没用过的 http(s) 标签页（例如"复制"打开了新页面）
+    // 1) 本轮新建、还没用过的 http(s) 标签页（例如"打开"跳到了新页面）
     const created = [];
     for (const [tabId, meta] of this._createdTabs) {
       if (meta.adopted) continue;
@@ -232,7 +232,7 @@ export class RunEngine {
     }
     if (created.length) return created[created.length - 1];
 
-    // 2) 起始标签页还在的话，切回去（例如日历标签页被 window.close 关掉）
+    // 2) 起始标签页还在的话，切回去（例如详情标签页被 window.close 关掉）
     if (this._originTabId) {
       try {
         const tab = await chrome.tabs.get(this._originTabId);
@@ -523,7 +523,7 @@ export class RunEngine {
         elementText: '',
       };
     }
-    // 防“点整块容器”：非交互元素如果特别大或文字特别长，多半是日历/面板外层，不点它
+    // 防“点整块容器”：非交互元素如果特别大或文字特别长，多半是大块容器/面板外层，不点它
     const tagLower = String(located.tag || '').toLowerCase();
     if (tagLower === 'select') {
       return { result: 'invalid', error: '这是原生下拉框，请用 selectOption 动作按选项文字选择，不要直接点击', point: null, elementText: located.text };
@@ -1090,7 +1090,7 @@ export class RunEngine {
           await this._sleepUnlessStopped(settings.clickDelayMs);
           pageAfter = await this._waitPageStable(4000);
           let changed = pageAfter.url !== pageBefore.url || pageAfter.sig !== pageBefore.sig;
-          // 当前标签页没有变化时，检查是不是点击打开了新标签页（有些系统"复制"会新开标签页）。
+          // 当前标签页没有变化时，检查是不是点击打开了新标签页（有些系统会打开新标签页）。
           if (!changed) {
             const followedTab = await this._maybeFollowNewTab();
             if (followedTab) {
@@ -1104,7 +1104,7 @@ export class RunEngine {
             this.runState.stats.noChangeStreak = 0;
             this._sameElementStreak = 0;
             this._lastClickElement = null;
-            if (logEntry.elementText && /确定|确认|提交|保存|完成|完成填报/.test(String(logEntry.elementText))) {
+            if (logEntry.elementText && /确定|确认|提交|保存|完成|完成/.test(String(logEntry.elementText))) {
               this._justSubmitted = true;
             }
           } else {
@@ -1154,7 +1154,7 @@ export class RunEngine {
       }
       if (this._urlStreakCount >= 18) {
         this._finish('failed', {
-          error: `已经在同一个页面连续执行 ${this._urlStreakCount} 步、始终没有页面跳转，判断为卡住并停止。常见原因：反复点了已经完成/不可点的项（例如已填报的日期），或提交/确定按钮要滚动后才出现。建议换一条记录、先滚动或返回列表再试。`,
+          error: `已经在同一个页面连续执行 ${this._urlStreakCount} 步、始终没有页面跳转，判断为卡住并停止。常见原因：反复点了已经完成/不可点的项（例如已完成的项目），或提交/确定按钮要滚动后才出现。建议换一条记录、先滚动或返回列表再试。`,
         });
         return false;
       }
@@ -1181,10 +1181,10 @@ export class RunEngine {
     const content = String(text || '').replace(/\s+/g, ' ');
     if (!content) return '';
     const patterns = [
-      /(?<![未没不有])(?<!尚未)(?<!没有)全部(?:日期|记录|任务|项目|工时)?(?:已|都|均)?(?:填报|完成|提交|处理)/,
-      /已全部(?:完成|填报|提交|处理)/,
-      /(?:没有|无|暂无)(?:需要|待)(?:填报|填写|处理|完成|提交)/,
-      /(?:所有|全部)(?:任务|记录|项目|日期|工时)?(?:都)?(?:已)?(?:完成|填报|提交)/,
+      /(?<![未没不有])(?<!尚未)(?<!没有)全部(?:日期|记录|任务|项目|数据)?(?:已|都|均)?(?:完成|提交|处理)/,
+      /已全部(?:完成|提交|处理)/,
+      /(?:没有|无|暂无)(?:需要|待)(?:填写|处理|完成|提交)/,
+      /(?:所有|全部)(?:任务|记录|项目|日期|数据)?(?:都)?(?:已)?(?:完成|提交)/,
       /all (?:tasks? )?(?:done|completed)/i,
       /no (?:more )?(?:pending|tasks? left)/i,
     ];
@@ -1248,7 +1248,7 @@ export class RunEngine {
       hints.push('之前有步骤执行失败过；如果页面看起来正常，可以继续按任务目标操作。');
     }
     if (this.runState.logs.slice(-3).some((entry) => entry.result === 'invalid')) {
-      hints.push('上一步想点的元素尺寸太大、文字很长，看起来是整块容器（例如整个日历/面板），不是具体按钮。请从元素清单里挑尺寸更小的那个元素。');
+      hints.push('上一步想点的元素尺寸太大、文字很长，看起来是整块容器（例如整个面板/表格），不是具体按钮。请从元素清单里挑尺寸更小的那个元素。');
     }
     if (this._sameTextStreak >= 3) {
       hints.push(`你已经连续 ${this._sameTextStreak} 次点击文字为「${this._lastClickText}」的元素，如果它没有让页面出现下一步（比如提交按钮），说明它可能已经完成或不可点，不要继续点它，换一个目标。`);
@@ -1264,7 +1264,7 @@ export class RunEngine {
       this._justSubmitted = false;
     }
     const visible = String(this._currentVisibleText || '');
-    const successMatch = visible.match(/(?:提交|保存|操作|填报)(?:成功|完成)/);
+    const successMatch = visible.match(/(?:提交|保存|操作)(?:成功|完成)/);
     if (successMatch) {
       hints.push(`页面出现成功提示「${successMatch[0]}」。如果任务目标已经全部达成，请直接返回 done；如果还有未完成项，再继续。`);
     }

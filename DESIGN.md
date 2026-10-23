@@ -27,10 +27,10 @@
 
 1. 以 Chrome 插件形式，用 DeepSeek 官方 API（`https://api.deepseek.com`，模型 `deepseek-flash`）执行用户用自然语言描述的网页操作（通用，不绑定具体业务）。
 2. 点击必须落在元素上，而不是模型猜的像素点；点击后能发现"页面没变化"并换策略。
-3. 支持循环任务：列表点复制 → 日历选红色日期 → 提交 → 确定 → 自动回列表 → 继续，直到没有可填红日期。
-4. 交互参考 Midscene Playground：指令式输入（自然语言 + Run），并支持多轮对话——运行中可以继续发补充指令，上一轮的指令和结果会作为下一轮的上下文。
+3. 支持循环任务：列表点「编辑/复制」 → 弹窗或详情页填写 → 保存 → 自动回列表 → 继续，直到没有待处理项。
+4. 交互参考常见浏览器自动化工具的 Playground：指令式输入（自然语言 + Run），并支持多轮对话——运行中可以继续发补充指令，上一轮的指令和结果会作为下一轮的上下文。
 5. 全部动作有日志、可导出，可复盘。
-6. 提供仿真页面与自动化测试，验证端到端流程（含多轮对话场景）。
+6. 全部动作有日志、可导出，可复盘；本地开发时用自建页面做端到端验证。
 
 非目标：
 
@@ -77,8 +77,6 @@ crosshair/
 │   ├── options.html / options.js
 │   ├── lib/*.js
 │   └── icons/
-├── mock/                 # 仿真工时系统（列表页 + 日历页 + 提交弹窗）
-├── tests/                # 自动化测试：假模型服务、CDP 驱动、真实模型端到端
 └── scripts/              # 打包/辅助脚本
 ```
 
@@ -109,8 +107,8 @@ crosshair/
 ```json
 [
   { "role": "user", "kind": "instruction", "text": "点击页面右上角的「新建」按钮，填写标题并保存…", "at": 1792737041581 },
-  { "role": "user", "kind": "injection",   "text": "补充：下一步继续，但不要点灰色日期", "at": 1792737045581 },
-  { "role": "assistant", "kind": "result", "status": "done", "text": "全部日期已填报", "at": 1792737051581 }
+  { "role": "user", "kind": "injection",   "text": "补充：下一步继续，但不要点不可用的项", "at": 1792737045581 },
+  { "role": "assistant", "kind": "result", "status": "done", "text": "全部处理完成", "at": 1792737051581 }
 ]
 ```
 
@@ -128,7 +126,7 @@ crosshair/
   "stats": { "apiCalls": 3, "promptTokens": 0, "completionTokens": 0, "clicks": 2, "noChangeStreak": 0 },
   "logs": [
     { "step": 1, "at": 1792737041581, "action": "click", "element": 12,
-      "elementText": "复制", "reason": "…", "result": "ok|stale|error",
+      "elementText": "保存", "reason": "…", "result": "ok|stale|error",
       "pageChanged": true, "url": "…", "apiMs": 1820, "tokens": 4100 }
   ]
 }
@@ -137,12 +135,12 @@ crosshair/
 ### 5.2 模型动作 JSON（引擎只接受这一种结构）
 
 ```json
-{"action":"click","element":12,"reason":"点击第一行复制按钮","memo":"选定第1周"}
+{"action":"click","element":12,"reason":"点击第一行的保存按钮","memo":"第 1 条已保存"}
 {"action":"clickPoint","point":[884,700],"reason":"目标不在清单里"}
 {"action":"scroll","direction":"down","amount":600,"reason":"…"}
 {"action":"wait","ms":1200,"reason":"等页面加载"}
-{"action":"back","reason":"该周没有红色日期，返回列表"}
-{"action":"done","summary":"所有未填写日期已填报"}
+{"action":"back","reason":"这一页没有待处理项了，返回列表"}
+{"action":"done","summary":"所有待处理项都已完成"}
 {"action":"fail","reason":"…"}
 ```
 
@@ -150,28 +148,28 @@ crosshair/
 - `point` 只作为兜底：截图像素坐标，引擎会换算成视口 CSS 坐标，并尝试吸附到附近元素再点击。
 - 解析容错：去掉 \`\`\`json 围栏，取第一个 `{` 到最后一个 `}`；非法时把错误原因追加给模型重试一次。
 
-### 5.3 元素清单文本格式（模型输入 / 假模型服务按此解析）
+### 5.3 元素清单文本格式（模型输入）
 
 ```
-页面: http://127.0.0.1:8081/list.html
+页面: http://127.0.0.1:8081/demo.html
 标题: 订单列表 - 示例后台
 视口: 1280x800 像素, 页面缩放比 1, 滚动位置 y=0
 弹窗: 无
 页面签名: a1b2c3d4
 可用元素（格式：[编号] 标签|角色|文字|x,y|尺寸w,h|底色|字色|表格行|状态）：
 [0] div|button|"+ 新建"|1000,116|120,32|#2f6bff|#ffffff|-|-
-[1] button|button|"复制"|884,171|48,24|#ffffff|#2f6bff|2026-10-08·8h·演示用户·审核中|-
-[2] div|gridcell|"14"|632,420|36,36|#ffffff|#e60000|2026-10-05~2026-10-11|-
-[3] div|gridcell|"15"|676,420|36,36|#eeeeee|#e60000|2026-10-05~2026-10-11|disabled
+[1] button|button|"保存"|884,171|48,24|#ffffff|#2f6bff|订单 A · 待处理|-
+[2] input|textbox|"搜索"|632,420|120,36|#ffffff|#1f2430|-|editable
+[3] div|option|"华东区"|676,420|96,32|#eef3ff|#24407a|区域下拉|-
+[4] canvas|chart|(图表)|120,520|600,300|-|-|季度趋势|chart
 ```
 
 规则：
 
-- 每行可点击元素一行，编号从 0 开始；`-` 表示空字段。
-- 颜色统一转成 `#rrggbb`，透明底色写 `-`。
-- 清单最多 300 个元素，只含当前视口内可见元素。
-- 日期格要在 `表格行` 字段带所在周范围，方便模型判断"今天及以前”。
-- 日期格的状态用颜色区分：红=白底红字（`#ffffff`/`#e60000`），绿=绿字（`#17803d`），灰底红=`#eeeeee`/`#e60000`，未来日期=灰字（`#b0b4bd`）。清单里不额外给 class 字段，假模型服务按颜色判断日期状态。
+- 每个元素一行，编号从 0 开始；`-` 表示空字段。
+- 颜色统一转成 `#rrggbb`，透明底色写 `-`；状态含义以用户指令描述为准，插件只负责如实呈现。
+- 清单最多 300 个元素，只含当前视口内可见元素；输入框会标 `editable`，图表会标 `chart`。
+- 表格内的元素会在 `表格行` 字段带上所在行的文字，帮助模型区分"第几行"。
 
 ### 5.4 sidepanel 测试钩子（本地开发用；URL 带 `?autostart=1` 时挂到 window 上）
 

@@ -151,7 +151,7 @@ export function collectInventory(opts) {
     if (['script', 'style', 'noscript', 'head', 'html', 'body'].includes(tag)) return;
     const rect = el.getBoundingClientRect();
     if (!isVisible(el, rect)) return;
-    // 非交互的大块元素（日历容器、面板、表格外层）不放进清单，避免模型点"整块容器"
+    // 非交互的大块元素（大块容器、面板、表格外层）不放进清单，避免模型点"整块容器"
     const isInteractive = priority === 0;
     const isTablePart = ['td', 'th', 'tr'].includes(tag);
     const huge = rect.width * rect.height > 240 * 160;
