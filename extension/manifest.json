@@ -1,0 +1,42 @@
+{
+  "manifest_version": 3,
+  "name": "__MSG_extName__",
+  "short_name": "__MSG_extShortName__",
+  "version": "0.1.6",
+  "description": "__MSG_extDesc__",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA4XCo01rNcRyprMIAzdBojUhp1rwdMxqLHhUcnpbJqhwmwqbNX5cfK3yVL2JYc7BbGP56cWhZ5L3DSO+CntncE+eR56KYUT7LJ6cY5Vj0WJuHmjoVy+w+lUnywoR4Xg/D+LvCJPVUiDYAcIaT+JCpsS85DwDIQ5JNH5z0RXCE0Ox5Ev2M2waK0IfBspt6RuqvjRGgZ4wFjqyKasTWsRJfjCY517iSdyL8vziseDUF7iW71rnXfLhkhXbQxeP3UmIuTHNrYX/GBWSKSgjhMGC+RjBZWplJ/d1qmCJoDuIT/91EZyVcLNP7oWhUgvF/4V08fS8W/DMh+/Xdta2EoCbXEwIDAQAB",
+  "minimum_chrome_version": "116",
+  "permissions": [
+    "storage",
+    "tabs",
+    "scripting",
+    "debugger",
+    "sidePanel"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "准星（点击工具栏图标打开侧边栏）",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "side_panel": {
+    "default_path": "sidepanel.html"
+  },
+  "options_page": "options.html",
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "default_locale": "en"
+}

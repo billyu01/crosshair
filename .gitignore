@@ -1,0 +1,15 @@
+# secrets / local-only assets
+.deepseek_key
+mock/
+tests/
+dist/
+
+# local browser profiles from tests
+.chrome*/
+.probe*/
+*.log
+.DS_Store
+node_modules/
+
+# browser profiles created by local tests
+.*-profile/

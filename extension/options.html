@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>准星 · 设置</title>
+    <link rel="stylesheet" href="sidepanel.css" />
+    <style>
+      body { background: #f5f7fb; }
+      .wrap { max-width: 760px; margin: 28px auto 40px; padding: 0 18px; }
+      .head { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+      .head img { border-radius: 10px; }
+      .head h1 { font-size: 20px; margin: 0; }
+      .head p { margin: 2px 0 0; color: var(--ink-2); font-size: 12.5px; }
+      .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+      .field { display: flex; flex-direction: column; gap: 5px; }
+      .field.full { grid-column: 1 / -1; }
+      .field label { font-weight: 650; font-size: 12.5px; }
+      .field .desc { color: var(--ink-2); font-size: 11.5px; }
+      .field input[type="text"], .field input[type="password"], .field input[type="number"], .field select, .field textarea {
+        width: 100%; padding: 8px 10px; border: 1px solid var(--line); border-radius: 9px; background: #fff; font: inherit;
+      }
+      .field textarea { min-height: 96px; }
+      .field input:focus, .field select:focus, .field textarea:focus { outline: 2px solid rgba(47,107,255,.22); border-color: var(--blue); }
+      .row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+      .status { margin-top: 12px; padding: 9px 12px; border-radius: 9px; font-size: 12.5px; display: none; }
+      .status.ok { display: block; background: #e9f7ee; color: #146c33; border: 1px solid #c6ecd4; }
+      .status.err { display: block; background: #fdecec; color: #8f1d21; border: 1px solid #ffd0d0; }
+      .status.info { display: block; background: #f0f5ff; color: #24407a; border: 1px solid #d6e2ff; }
+      .tips { margin-top: 18px; font-size: 12px; color: var(--ink-2); line-height: 1.8; }
+      .tips code { background: #eef1f6; padding: 1px 5px; border-radius: 4px; }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="head">
+        <img src="icons/icon48.png" width="44" height="44" alt="" />
+        <div>
+          <h1>准星 · 设置</h1>
+          <p>用一句中文指令操作网页：模型只选页面元素编号，插件按真实 DOM 位置点击并校验结果。</p>
+        </div>
+      </div>
+
+      <section class="card">
+        <div class="grid">
+          <div class="field full">
+            <label for="apiKey">DeepSeek API Key</label>
+            <input id="apiKey" type="password" autocomplete="off" />
+            <span class="desc">只保存在本机浏览器存储里（chrome.storage.local），不会写进代码仓库，也不会随日志导出。</span>
+          </div>
+          <div class="field">
+            <label for="apiBase">API 地址</label>
+            <input id="apiBase" type="text" />
+            <span class="desc">官方接口填 https://api.deepseek.com（不要带 /v1）</span>
+          </div>
+          <div class="field">
+            <label for="model">模型</label>
+            <input id="model" type="text" list="model-options" autocomplete="off" />
+            <datalist id="model-options">
+              <option value="deepseek-flash">deepseek-flash（默认，推荐）</option>
+              <option value="deepseek-v4-pro">deepseek-v4-pro</option>
+            </datalist>
+            <span class="desc">默认 deepseek-flash；可以改成 deepseek-v4-pro 或你们兼容的模型名。</span>
+          </div>
+          <div class="field">
+            <label for="thinking">思考模式</label>
+            <select id="thinking">
+              <option value="enabled">开启（更准，稍慢）</option>
+              <option value="disabled">关闭（更快）</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="reasoningEffort">思考强度</label>
+            <select id="reasoningEffort">
+              <option value="low">low（推荐）</option>
+              <option value="high">high</option>
+              <option value="max">max</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="maxSteps">最多步数</label>
+            <input id="maxSteps" type="number" min="5" max="300" />
+            <span class="desc">单次任务最多调用模型多少次，默认 120</span>
+          </div>
+          <div class="field">
+            <label for="clickDelayMs">点击后等待（毫秒）</label>
+            <input id="clickDelayMs" type="number" min="0" max="5000" step="100" />
+            <span class="desc">点完先等这么久，再判断页面是否变化</span>
+          </div>
+          <div class="field">
+            <label for="maxImageWidth">截图最大宽度</label>
+            <input id="maxImageWidth" type="number" min="400" max="2000" step="100" />
+            <span class="desc">发给模型前把截图等比缩到这个宽度以内</span>
+          </div>
+          <div class="field">
+            <label for="dryRun">试运行（只看不点）</label>
+            <label style="display:flex;align-items:center;gap:8px;font-weight:400">
+              <input id="dryRun" type="checkbox" style="width:auto" /> 只让模型规划、不真正点击，用来调试提示词
+            </label>
+          </div>
+          <div class="field full">
+            <label for="taskPrompt">常用指令模板</label>
+            <textarea id="taskPrompt" spellcheck="false"></textarea>
+            <span class="desc">把常用的一段操作说明存在这里，侧边栏点「填入常用指令」就会填入，可以随时改。</span>
+          </div>
+        </div>
+
+        <div class="row">
+          <button id="btn-save" class="btn primary">保存设置</button>
+          <button id="btn-test" class="btn ghost">测试连接</button>
+          <button id="btn-reset-task" class="btn ghost">恢复内置示例</button>
+        </div>
+        <div id="status" class="status"></div>
+
+        <div class="tips">
+          <p><b>使用步骤：</b>1. 在 Chrome 打开要操作的系统页面；2. 点工具栏的插件图标打开侧边栏；3. 输入指令点「执行」（可先点侧边栏左下角的书签图标填入常用指令）；运行中继续发消息就是补充指令，任务结束后可以接着追问。运行期间不要关闭侧边栏，也不要打开开发者工具占用调试接口。</p>
+          <p><b>权限说明：</b>插件需要「读取和更改所有网站数据」用于读取页面元素和点击，「调试器」用于发出真实鼠标事件和截图，「标签页」用于跟随页面跳转。所有判断都基于你配置的 DeepSeek 接口，不会上传到其他服务器。</p>
+        </div>
+      </section>
+    </div>
+    <script type="module" src="options.js"></script>
+  </body>
+</html>

@@ -1,0 +1,11 @@
+{
+  "extName": {
+    "message": "Crosshair · Web Command Agent"
+  },
+  "extShortName": {
+    "message": "Crosshair"
+  },
+  "extDesc": {
+    "message": "Operate web pages with a single instruction: the model picks element IDs, the extension clicks real DOM positions, verifies results, and supports multi-turn follow-ups."
+  }
+}

@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>准星 · 网页指令执行助手</title>
+    <link rel="stylesheet" href="sidepanel.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand">
+        <img src="icons/icon32.png" alt="" width="28" height="28" />
+        <div class="brand-text">
+          <h1>准星</h1>
+          <p>网页指令执行助手 · 看得懂页面，点得准元素</p>
+        </div>
+      </div>
+      <button id="btn-settings" class="icon-btn" title="打开设置">设置</button>
+    </header>
+
+    <div class="statusbar">
+      <span id="status-badge" class="badge idle">空闲</span>
+      <span id="status-detail" class="status-detail">输入指令开始，或点「填入常用指令」</span>
+      <span id="stats" class="status-stats"></span>
+      <span class="statusbar-actions">
+        <button id="btn-export" class="icon-btn-sm" title="导出对话和运行日志" aria-label="导出">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+        </button>
+        <button id="btn-clear" class="icon-btn-sm" title="清空对话和日志" aria-label="清空">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3m-8 0 1 13h8l1-13M10 11v6M14 11v6"/></svg>
+        </button>
+      </span>
+    </div>
+
+    <main id="chat-area" class="chat-area">
+      <div id="chat-list" class="chat-list"></div>
+    </main>
+
+    <details id="log-panel" class="log-panel">
+      <summary>
+        <span>执行日志</span>
+        <span id="log-count" class="muted">0 条</span>
+        <span id="log-latest" class="log-latest"></span>
+      </summary>
+      <ol id="log-list" class="log-list">
+        <li class="empty">还没有执行记录</li>
+      </ol>
+    </details>
+
+    <div class="composer">
+      <div id="config-warning" class="notice hidden"></div>
+      <textarea id="task-input" rows="1" spellcheck="false"></textarea>
+      <div class="composer-row">
+        <button id="btn-default-task" class="icon-btn-sm" title="填入常用指令" aria-label="填入常用指令">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4h12a1 1 0 0 1 1 1v15l-7-4-7 4V5a1 1 0 0 1 1-1Z"/></svg>
+        </button>
+        <span class="composer-spacer"></span>
+        <button id="btn-stop" class="icon-btn-sm danger" title="停止执行" aria-label="停止执行" disabled>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>
+        </button>
+        <button id="btn-send" class="icon-btn-send" title="执行（Enter）；运行中发送补充指令" aria-label="执行">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5m0 0-6 6m6-6 6 6"/></svg>
+        </button>
+      </div>
+      <div id="toast" class="toast hidden"></div>
+    </div>
+
+    <script type="module" src="sidepanel.js"></script>
+  </body>
+</html>
