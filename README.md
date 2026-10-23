@@ -64,7 +64,7 @@
 
 1. 打开 Chrome，地址栏输入 `chrome://extensions/`。
 2. 右上角打开「开发者模式」。
-3. 点「加载已解压的扩展程序」，选择本目录下的 `extension/` 文件夹（也可以解压 GitHub Release 里的 `crosshair-extension-*.zip`，加载解压出来的目录）。
+3. 点「加载已解压的扩展程序」，选择本目录下的 `extension/` 文件夹；也可以先运行 `bash scripts/package.sh` 生成 `dist/crosshair-extension-*.zip`，解压后加载解压出来的目录。
 4. 点插件图标 → 右上角「设置」→ 填 DeepSeek API Key（官方地址 `https://api.deepseek.com`，模型 `deepseek-flash`）→「保存设置」→「测试连接」。
 5. 打开要操作的网页（保持该标签页在前台），点插件图标打开侧边栏，输入指令点「执行」；运行中可以在输入框继续发补充指令。
 
